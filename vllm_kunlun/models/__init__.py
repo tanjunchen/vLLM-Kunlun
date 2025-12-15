@@ -78,6 +78,10 @@ def register_model():
         "SeedOssForCausalLM",
         "vllm_kunlun.models.seed_oss:SeedOssForCausalLM")
 
+    ModelRegistry.register_model(
+        "LlamaForCausalLM",
+        "vllm_kunlun.models.llama:LlamaForCausalLM")
+
 
 def register_quant_method():
     """to do"""
