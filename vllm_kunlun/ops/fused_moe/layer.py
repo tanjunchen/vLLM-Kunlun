@@ -108,6 +108,7 @@ class UnquantizedFusedMoEMethod(VllmUnquantizedFusedMoEMethod):
                              layer.w2_weight,
                              router_logits,
                              linear_weights,
+                             self.moe.ep_rank,
                              top_k,
                              renormalize=renormalize,
                              inplace=True,
@@ -116,6 +117,8 @@ class UnquantizedFusedMoEMethod(VllmUnquantizedFusedMoEMethod):
                              topk_group=topk_group,
                              scoring_func=scoring_func,
                              e_score_correction_bias=e_score_correction_bias,
+                             w1_bias = layer.w13_bias,
+                             w2_bias = layer.w2_bias,
                              )
 
 class FusedMoE(VllmFusedMoE):
@@ -144,6 +147,7 @@ class FusedMoE(VllmFusedMoE):
         enable_eplb: bool = False,
         num_redundant_experts: int = 0,
         is_sequence_parallel=False,
+        has_bias: bool = False,
     ):
         super().__init__(
         num_experts=num_experts,  # Global number of experts
@@ -186,10 +190,12 @@ class FusedMoE(VllmFusedMoE):
             moe_parallel_config=self.moe_parallel_config,
             in_dtype=model_dtype,
             max_num_tokens=envs.VLLM_MOE_DP_CHUNK_SIZE,
+            has_bias=has_bias,
             # quant_config=quant_config,
         )
         self.moe_config = moe
         self.quant_config = quant_config
+        self.has_bias=has_bias
 
         # Note: get_quant_method will look at the layer's local_num_experts
         # for heuristic purposes, so it must be initialized first.
